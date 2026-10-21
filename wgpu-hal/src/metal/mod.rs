@@ -228,6 +228,7 @@ bitflags!(
 #[allow(dead_code)]
 struct CapabilitiesQuery {
     msl_version: MTLLanguageVersion,
+    max_total_threads_per_threadgroup_attribute: bool,
     fragment_rw_storage: bool,
     read_write_texture_tier: MTLReadWriteTextureTier,
     msaa_desktop: bool,
@@ -337,6 +338,8 @@ struct CapabilitiesQuery {
 #[derive(Debug)]
 struct PrivateCapabilities {
     msl_version: MTLLanguageVersion,
+    /// Mac1-only GPUs fail to compile kernels with `[[max_total_threads_per_threadgroup]]`.
+    max_total_threads_per_threadgroup_attribute: bool,
     low_power: bool,
     headless: bool,
     has_unified_memory: Option<bool>,

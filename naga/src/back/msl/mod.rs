@@ -326,6 +326,8 @@ pub struct Options {
     pub emit_int_div_checks: bool,
     /// Whether to validate ray query calls
     pub ray_query_initialization_tracking: bool,
+    /// Emit `[[max_total_threads_per_threadgroup]]` on compute entry points (MSL 2.1+).
+    pub emit_max_total_threads_per_threadgroup: bool,
 }
 
 impl Default for Options {
@@ -343,6 +345,7 @@ impl Default for Options {
             mesh_shader_primitive_indices_clamp: true,
             ray_query_initialization_tracking: true,
             emit_int_div_checks: true,
+            emit_max_total_threads_per_threadgroup: true,
         }
     }
 }

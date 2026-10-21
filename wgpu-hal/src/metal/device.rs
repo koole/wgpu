@@ -237,6 +237,10 @@ impl super::Device {
                         .runtime_checks
                         .mesh_shader_primitive_indices_clamp,
                     emit_int_div_checks: stage.module.runtime_checks.int_div_checks,
+                    emit_max_total_threads_per_threadgroup: self
+                        .shared
+                        .private_caps
+                        .max_total_threads_per_threadgroup_attribute,
                     ray_query_initialization_tracking: stage
                         .module
                         .runtime_checks
@@ -1871,6 +1875,26 @@ impl crate::Device for super::Device {
                         format!("new_compute_pipeline_state: {e:?}"),
                     )
                 })?;
+
+            // Without the attribute the workgroup size is not guaranteed to fit (#9176).
+            if !self
+                .shared
+                .private_caps
+                .max_total_threads_per_threadgroup_attribute
+            {
+                let size = cs_info.raw_wg_size;
+                let workgroup_threads = size.width * size.height * size.depth;
+                let limit = raw.maxTotalThreadsPerThreadgroup();
+                if limit < workgroup_threads {
+                    return Err(crate::PipelineError::Linkage(
+                        wgt::ShaderStages::COMPUTE,
+                        format!(
+                            "workgroup of {workgroup_threads} threads exceeds this pipeline's \
+                             limit of {limit}"
+                        ),
+                    ));
+                }
+            }
 
             self.counters.compute_pipelines.add(1);
 

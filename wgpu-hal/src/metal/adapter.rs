@@ -732,6 +732,10 @@ impl super::CapabilitiesQuery {
 
         Self {
             msl_version,
+            // https://github.com/gfx-rs/wgpu/issues/5827
+            max_total_threads_per_threadgroup_attribute: !(os_type == super::OsType::Macos
+                && family_check
+                && !device.supportsFamily(MTLGPUFamily::Mac2)),
             // macOS 10.11 doesn't support read-write resources
             fragment_rw_storage: available!(macos = 10.12, ios = 8.0, tvos = 8.0, visionos = 1.0),
             read_write_texture_tier: rw_texture_tier,
@@ -1557,6 +1561,8 @@ impl super::CapabilitiesQuery {
     pub fn private_capabilities(&self) -> super::PrivateCapabilities {
         super::PrivateCapabilities {
             msl_version: self.msl_version,
+            max_total_threads_per_threadgroup_attribute: self
+                .max_total_threads_per_threadgroup_attribute,
             low_power: self.low_power,
             headless: self.headless,
             has_unified_memory: self.has_unified_memory,
